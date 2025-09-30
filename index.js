@@ -1,4 +1,6 @@
 const app = require('./app');
-const serverless = require('serverless-http');
 
-module.exports = serverless(app);
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Servidor backend corriendo en puerto ${PORT}`);
+});
