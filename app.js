@@ -1,14 +1,12 @@
-const allowedOrigins = [
-  "http://localhost:3000",
-  process.env.FRONTEND_URL
-];
+const cors = require('cors');
+const express = require('express');
+
+const app = express();
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  }
+  origin: process.env.FRONTEND_URL || "http://localhost:3000"
 }));
+
+app.use(express.json());
+
+module.exports = app;
