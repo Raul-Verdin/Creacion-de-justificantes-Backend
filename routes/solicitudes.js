@@ -2,51 +2,54 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// Utilidad para manejar errores
-const handleDbError = (res, msg) => res.status(500).json({ error: msg });
-
 // GET: Obtener todas las solicitudes
-router.get('/', (req, res) => {
-  const query = 'SELECT * FROM solicitudes ORDER BY fecha_solicitud DESC';
-
-  db.query(query, (err, results) => {
-    if (err) return handleDbError(res, 'Error al obtener solicitudes');
+router.get('/', async (req, res) => {
+  try {
+    const [results] = await db.query('SELECT * FROM solicitudes ORDER BY fecha_solicitud DESC');
     res.json(results);
-  });
+  } catch (error) {
+    console.error('Error al obtener solicitudes:', error);
+    res.status(500).json({ error: 'Error al obtener solicitudes' });
+  }
 });
 
 // POST: Crear nueva solicitud
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const { nombre, grupo, motivo, fecha_ausencia } = req.body;
 
   if (!nombre || !grupo || !motivo || !fecha_ausencia) {
     return res.status(400).json({ error: 'Todos los campos son obligatorios' });
   }
 
-  const query = `
-    INSERT INTO solicitudes (nombre, grupo, motivo, fecha_ausencia)
-    VALUES (?, ?, ?, ?)
-  `;
+  try {
+    const [result] = await db.query(
+      `INSERT INTO solicitudes (nombre, grupo, motivo, fecha_ausencia) VALUES (?, ?, ?, ?)`,
+      [nombre, grupo, motivo, fecha_ausencia]
+    );
 
-  db.query(query, [nombre, grupo, motivo, fecha_ausencia], (err, result) => {
-    if (err) return handleDbError(res, 'Error al guardar la solicitud');
     res.status(201).json({ mensaje: 'Solicitud registrada', id: result.insertId });
-  });
+  } catch (error) {
+    console.error('Error al guardar solicitud:', error);
+    res.status(500).json({ error: 'Error al guardar la solicitud' });
+  }
 });
 
 // GET: Obtener solicitud por ID
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   const { id } = req.params;
 
-  const query = 'SELECT * FROM solicitudes WHERE id = ?';
+  try {
+    const [results] = await db.query('SELECT * FROM solicitudes WHERE id = ?', [id]);
 
-  db.query(query, [id], (err, results) => {
-    if (err) return handleDbError(res, 'Error al obtener la solicitud');
     if (results.length === 0) {
       return res.status(404).json({ error: 'Solicitud no encontrada' });
     }
+
     res.json(results[0]);
-  });
+  } catch (error) {
+    console.error('Error al obtener solicitud:', error);
+    res.status(500).json({ error: 'Error al obtener la solicitud' });
+  }
 });
 
 module.exports = router;
