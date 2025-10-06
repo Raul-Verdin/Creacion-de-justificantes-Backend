@@ -9,7 +9,8 @@ router.get('/', async (req, res) => {
     res.json(results);
   } catch (error) {
     console.error('Error al obtener solicitudes:', error);
-    res.status(500).json({ error: 'Error al obtener solicitudes' });
+    res.status(500).json({ error: 'Error al obtener solicitudes', detalle: error.message });
+
   }
 });
 
