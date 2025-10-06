@@ -29,4 +29,8 @@ app.use(cors({
 // Rutas
 app.use('/solicitudes', solicitudesRoutes);
 
+app.get('/', (req, res) => {
+  res.send('✅ API de justificantes corriendo correctamente.');
+});
+
 module.exports = app;
