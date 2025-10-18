@@ -1,6 +1,5 @@
 # Archivos de entorno
 .env
-_env_local.txt
 
 # Node modules
 node_modules/
